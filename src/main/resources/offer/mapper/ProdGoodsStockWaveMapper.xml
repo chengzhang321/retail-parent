@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.iwhalecloud.retail.offer.mapper.ProdGoodsStockWaveMapper">
+
+    <select id="listProdGoodsStockWaveByProdGoodsId" resultType="com.iwhalecloud.retail.offer.dto.resp.ProdGoodsStockWaveResp">
+        select *
+          from prod_goods_stock_wave
+         where goods_id = #{goodsId}
+           and state != 'X'
+      order by stock_in_date
+    </select>
+
+    <update id="deleteProdGoodsStockWave">
+      	update prod_goods_stock_wave
+      	   set state = 'X', state_date = now()
+		 where stock_wave_id = #{stockWaveId}
+    </update>
+
+    <update id="editProdGoodsStockWave">
+      	update prod_goods_stock_wave
+        <set >
+               stock_in_type = #{req.stockInType},
+            <if test="req.stockInDate != null" >
+               stock_in_date = #{req.stockInDate},
+            </if>
+            <if test="req.qty != null" >
+               qty = #{req.qty},
+            </if>
+            <if test="req.comments != null" >
+               comments = #{req.comments}
+            </if>
+        </set>
+		 where stock_wave_id = #{stockWaveId}
+    </update>
+
+</mapper>

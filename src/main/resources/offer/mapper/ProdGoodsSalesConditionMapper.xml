@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.iwhalecloud.retail.offer.mapper.ProdGoodsSalesConditionMapper">
+
+    <select id="listProdGoodsSalesConditionByGoodsId" resultType="com.iwhalecloud.retail.offer.dto.resp.ProdGoodsSalesConditionResp">
+        select pgsc.*, pgsr.name, pgsr.comments
+          from prod_goods_sales_condition pgsc
+          join prod_goods_sales_rule pgsr on pgsr.sales_rule_id = pgsc.sales_rule_id
+         where goods_id = #{goodsId}
+      order by goods_id
+    </select>
+
+    <insert id="addProdGoodsSalesCondition">
+        insert into prod_goods_rel (goods_id, sales_rule_id, obj_id)
+        values (#{goodsid}, #{salesruleid}, #{objid})
+    </insert>
+
+    <delete id="deleteProdGoodsSalesCondition">
+        delete from prod_goods_sales_condition
+         where goods_id = #{goodsId}
+           and sales_rule_id = #{salesRuleId}
+           and obj_id = #{objId}
+    </delete>
+
+    <delete id="deleteProdGoodsSalesConditionByGoodsIdAndSalesRuleId">
+        delete from prod_goods_sales_condition
+         where goods_id = #{goodsId}
+           and sales_rule_id = #{salesRuleId}
+    </delete>
+
+</mapper>

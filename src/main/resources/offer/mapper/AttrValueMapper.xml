@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.iwhalecloud.retail.offer.mapper.AttrValueMapper">
+
+    <select id="queryAttrValueByAttrId" resultType="com.iwhalecloud.retail.offer.entity.AttrValue">
+        select *
+      	  from attr_value
+	     where attr_id = #{attrId}
+    </select>
+
+    <delete id="delAttrValueByAttrId">
+        DELETE FROM attr_value
+        WHERE attr_id = #{attrId}
+    </delete>
+
+</mapper>

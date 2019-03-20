@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.iwhalecloud.retail.offer.mapper.ProdGoodsCatMemMapper">
+
+    <sql id="prod_goods_cat_mem_column">
+        A.CAT_MEM_ID,A.CAT_ID,A.GOODS_ID
+    </sql>
+
+    <select id="selectProdGoodsCatMemByCat" resultType="com.iwhalecloud.retail.offer.entity.ProdGoodsCatMem">
+        SELECT
+        <include refid="prod_goods_cat_mem_column"/>
+        FROM PROD_GOODS_CAT_MEM A
+        WHERE A.CAT_ID = #{catId}
+        ORDER BY A.GOODS_ID
+    </select>
+
+    <select id="qryGoodsCatMemList" resultType="com.iwhalecloud.retail.offer.dto.resp.QryGoodsCatMemListResp">
+        SELECT F.CAT_ID SALE_CAT_ID, F.NAME SALE_CAT_NAME, A.CAT_MEM_ID, C.CAT_ID, B.GOODS_ID,
+        B.NAME, B.SN,  B.TYPE_ID, G.TYPE_NAME, B.STATE, B.STOCK_QTY, B.PRICE, B.MARKETING_BEGIN_TIME, B.MARKETING_END_TIME
+        FROM PROD_GOODS B LEFT JOIN
+        (SELECT D.GOODS_ID, D.CAT_ID, E.NAME, E.CAT_TYPE
+        FROM PROD_GOODS_CAT_MEM D, PROD_GOODS_CAT E
+        WHERE D.CAT_ID = E.CAT_ID AND E.CAT_TYPE = 'S') F ON B.GOODS_ID = F.GOODS_ID,
+        PROD_GOODS_CAT_MEM A, PROD_GOODS_CAT C,PROD_GOODS_TYPE G
+        WHERE B.GOODS_ID = A.GOODS_ID
+        AND A.CAT_ID = C.CAT_ID
+        AND B.TYPE_ID = G.TYPE_ID
+        AND B.STATE <![CDATA[<>]]> 'X'
+        <if test="request.catId != null and request.catId.length() >0 ">
+            AND C.CAT_ID = #{request.catId}
+        </if>
+        <if test="request.catType != null and request.catType.length() >0 ">
+            AND C.CAT_TYPE = #{request.catType}
+          </if>
+          <if test="request.qt != null and request.qt.length() >0 ">
+              AND (B.NAME = #{request.qt} OR B.SN = #{request.qt})
+          </if>
+          ORDER BY B.GOODS_ID
+    </select>
+
+    <select id="listProdGoodsCatByGoodsId" resultType="com.iwhalecloud.retail.offer.dto.resp.ProdGoodsCatMemResp">
+        select b.*, a.cat_mem_id, a.goods_id
+          from prod_goods_cat_mem a
+          join prod_goods_cat b on b.cat_id = a.cat_id
+         where a.goods_id = #{goodsId}
+      order by b.cat_id
+    </select>
+    
+    <select id="qryPublishMem" resultType="Long">
+        SELECT COUNT(*) 
+        FROM PROD_GOODS_CAT_MEM CM
+        RIGHT JOIN PROD_GOODS PG
+        ON CM.GOODS_ID = PG.GOODS_ID
+        WHERE 1 = 1
+        AND PG.STATE = 'C'
+        AND PG.GOODS_ID IN
+        <foreach collection="goodsIds" item="goodsId" index="index" open="(" close=")" separator=",">
+            #{goodsId}
+        </foreach>  
+    </select>
+    
+    <delete id="batchDeleteGoodsMem">
+        DELETE FROM PROD_GOODS_CAT_MEM
+        WHERE 1 = 1
+        AND GOODS_ID IN 
+        <foreach collection="goodsIds" item="goodsId" index="index" open="(" close=")" separator=",">
+            #{goodsId}
+        </foreach>
+        
+    </delete>
+
+</mapper>

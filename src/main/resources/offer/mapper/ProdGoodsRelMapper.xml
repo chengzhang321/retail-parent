@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.iwhalecloud.retail.offer.mapper.ProdGoodsRelMapper">
+
+    <select id="listProdGoodsRelByProdGoodsId" resultType="com.iwhalecloud.retail.offer.dto.resp.ProdGoodsRelResp">
+        select pgr.*, pgrt.rel_type_name, pg.*
+          from prod_goods_rel pgr
+          join prod_goods_rel_type pgrt on pgrt.rel_type = pgr.rel_type
+          join prod_goods pg on pg.goods_id = pgr.a_goods_id
+         where pgr.a_goods_id = #{goodsId}
+      order by pgr.rel_id
+
+
+    </select>
+    
+    <select id="qryExistRel" resultType="com.iwhalecloud.retail.offer.entity.ProdGoodsRel">
+        SELECT * FROM PROD_GOODS_REL 
+        WHERE REL_TYPE = #{relType}
+        AND (
+                ( 
+                    A_GOODS_ID IN 
+                    <foreach collection="goodsList" item="item" index="index" open="(" close=")" separator=",">
+                        #{item}
+                    </foreach>
+                    AND z_goods_id = #{id}
+                )
+                OR 
+                (
+                    A_GOODS_ID = #{id}
+                    AND Z_GOODS_ID IN 
+                    <foreach collection="goodsList" item="item" index="index" open="(" close=")" separator=",">
+                        #{item}
+                    </foreach>
+                ) 
+            )
+    </select>
+    
+    <insert id="createProdGoodsRel" parameterType="java.util.List">
+        INSERT INTO PROD_GOODS_REL
+        (REL_ID, A_GOODS_ID,REL_TYPE,Z_GOODS_ID)
+        VALUES
+        <foreach collection="goodsRelList" item="item" index="index" separator=",">
+            (
+                #{item.relId}, #{item.aGoodsId}, #{item.relType}, #{item.zGoodsId}
+            )
+        </foreach>
+    </insert>
+    
+    <delete id="delProdGoodsRel" parameterType="java.util.List">
+        DELETE FROM PROD_GOODS_REL 
+        WHERE REL_ID IN
+        <foreach collection="goodsRelList"  item="item" open="("
+            separator="," close=")">
+            #{item.relId}
+        </foreach>
+    </delete>
+    
+    <select id="qryExcludeProdGoods" resultType="com.iwhalecloud.retail.offer.entity.ProdGoods">
+        select * 
+        from prod_goods
+        where goods_id in 
+        (
+            select z_goods_id 
+            from prod_goods_rel
+            where a_goods_id = #{goodsRel.agoodsId}
+            and rel_type = #{goodsRel.relType}
+        )
+        
+    </select>
+    
+</mapper>

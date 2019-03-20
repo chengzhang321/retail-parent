@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.iwhalecloud.retail.offer.mapper.ProdGoodsMapper">
+    <sql id="Base_Column_List" >
+        GOODS_ID, NAME, SN, BRAND_ID, TYPE_ID, WEIGHT, STATE, INTRO, PRICE, COST,
+        MKTPRICE, CREATE_TIME, LAST_MODIFY, VIEW_COUNT, BUY_COUNT, SORD, CREATOR_USER,
+        SIMPLE_NAME, MIN_NIM,  SEARCH_KEY, SELLING_POINT, REGION_ID, REGION_NAME,
+        MARKETING_BEGIN_TIME, MARKETING_END_TIME, STOCK_QTY,PRODUCT_CODE,DUPLICATE_FLAG,MAX_BUY_COUNT,
+        STORE_ID, IS_PACKAGE,DISPATCH_ORDER_ID, THUMBNAIL, AFTER_SALE, TANANT_ID
+    </sql>
+    <select id="queryGoodsForPage" resultType="com.iwhalecloud.retail.offer.dto.ProdGoodsDTO" parameterType="com.iwhalecloud.retail.offer.dto.req.ProdGoodsQueryReq">
+        select
+        <include refid="Base_Column_List"></include>
+        from prod_goods t where t.STATE <![CDATA[<>]]> 'X'
+        <if test="req.ids != null" >
+            and t.GOODS_ID in
+            <foreach item="item" index="index" open="(" separator="," close=")" collection="req.ids">
+                #{item}
+            </foreach>
+        </if>
+        <if test="req.searchKey != null and req.searchKey != ''">
+            and lower(t.SEARCH_KEY) like lower(CONCAT(CONCAT('%', #{req.searchKey }), '%'))
+        </if>
+        <if test="req.typeIds != null" >
+            and t.TYPE_ID not in
+            <foreach item="item" index="index" open="(" separator="," close=")" collection="req.typeIds">
+                #{item}
+            </foreach>
+        </if>
+        <if test="req.brandId != null and req.brandId != ''">
+            and t.BRAND_ID = #{req.brandId}
+        </if>
+        <if test="req.sortType != null">
+            order by ${req.sortType}
+        </if>
+    </select>
+    
+    <update id="goodsPublish">
+        <if test="goodsId != null">
+            UPDATE PROD_GOODS
+            <set>
+                <if test = "req.marketBeg != null">
+                    MARKETING_BEGIN_TIME = DATE_FORMAT(#{req.marketBeg,jdbcType=DATE}, '%Y-%m-%d %H:%i:%s'),
+                </if>
+                <if test = "req.marketEnd != null">
+                    MARKETING_END_TIME = DATE_FORMAT(#{req.marketEnd,jdbcType=DATE}, '%Y-%m-%d %H:%i:%s'),
+                </if>
+                LAST_MODIFY = DATE_FORMAT(now(), '%Y-%m-%d %H:%i:%s'),
+                STATE = 'C'
+            </set>
+            WHERE 1 = 1
+            AND GOODS_ID = #{goodsId}
+        </if>
+    </update>
+    
+    <update id="goodsUnpublish">
+        <if test="goodsId != null">
+            UPDATE PROD_GOODS
+            <set>
+                LAST_MODIFY = DATE_FORMAT(now(), '%Y-%m-%d %H:%i:%s'),
+                STATE = 'A'
+            </set>
+            WHERE 1 = 1
+            AND GOODS_ID = #{goodsId}
+        </if>
+    </update>
+
+    <select id="queryGoodsList" resultType="com.iwhalecloud.retail.offer.dto.ProdGoodsDTO" parameterType="com.iwhalecloud.retail.offer.dto.req.ProdGoodsQueryReq">
+        select
+        <include refid="Base_Column_List"></include>
+        from prod_goods t where 1=1
+        AND t.STATE <![CDATA[<>]]> 'X'
+        <if test="req.ids != null" >
+            and t.GOODS_ID in
+            <foreach item="item" index="index" open="(" separator="," close=")" collection="req.ids">
+                #{item}
+            </foreach>
+        </if>
+        <if test="req.searchKey != null and req.searchKey != ''">
+            and lower(t.SEARCH_KEY) like lower(CONCAT(CONCAT('%', #{req.searchKey }), '%'))
+        </if>
+        <if test="req.typeIds != null" >
+            and t.TYPE_ID not in
+            <foreach item="item" index="index" open="(" separator="," close=")" collection="req.typeIds">
+                #{item}
+            </foreach>
+        </if>
+        <if test="req.brandId != null and req.brandId != ''">
+            and t.BRAND_ID = #{req.brandId}
+        </if>
+        <if test="req.sortType != null">
+            order by ${req.sortType}
+        </if>
+    </select>
+
+    <select id="qryGoodsBySn" resultType="com.iwhalecloud.retail.offer.entity.ProdGoods">
+        select
+        <include refid="Base_Column_List"></include>
+        from PROD_GOODS
+        WHERE SN = #{sn}
+        AND STATE <![CDATA[<>]]> 'X'
+    </select>
+
+    <select id="selectByGoodsId" resultType="com.iwhalecloud.retail.offer.entity.ProdGoods">
+        select
+        <include refid="Base_Column_List"></include>
+        from PROD_GOODS
+        WHERE GOODS_ID = #{goodsId}
+        AND STATE <![CDATA[<>]]> 'X'
+    </select>
+
+    <update id="deleteProdGoods">
+        UPDATE PROD_GOODS
+        SET STATE = 'X',
+        LAST_MODIFY = now()
+        WHERE GOODS_ID = #{goodsId}
+    </update>
+
+    <update id="batchDeleteProdGoods">
+        UPDATE PROD_GOODS
+        SET STATE = 'X',
+        LAST_MODIFY = now()
+        WHERE GOODS_ID IN
+        <foreach collection="goodsIdArray" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <select id="queryGoodsNameByGoodsId" resultType="com.iwhalecloud.retail.offer.dto.resp.RightsGoodsResp">
+        select goods_id as goodsId, name as goodsName
+          from prod_goods
+         where goods_id in
+      <foreach collection="goodsIdList" item="item" separator="," open="(" close=")">
+               #{item}
+     </foreach>
+    </select>
+
+</mapper>

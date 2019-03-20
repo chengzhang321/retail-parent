@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.iwhalecloud.retail.offer.mapper.ProdGoodsCatMapper">
+
+    <sql id="prod_goods_cat_column">
+        A.CAT_ID,A.NAME,A.CAT_TYPE,A.COMMENTS,A.STORE_ID,A.PARENT_ID,A.LOGO,A.CAT_ORDER,A.TANANT_ID
+    </sql>
+
+
+    <select id="qryProdGoodsCatList" resultType="com.iwhalecloud.retail.offer.entity.ProdGoodsCat">
+        SELECT
+        <include refid="prod_goods_cat_column"/>
+        FROM PROD_GOODS_CAT A
+        WHERE A.CAT_TYPE = #{catType}
+        ORDER BY A.CAT_ORDER
+    </select>
+
+    <select id="qryChildProdGoodsCatList" resultType="com.iwhalecloud.retail.offer.entity.ProdGoodsCat">
+        SELECT
+        <include refid="prod_goods_cat_column"/>
+        FROM PROD_GOODS_CAT A
+        WHERE A.PARENT_ID = #{parentId}
+        ORDER BY A.CAT_ORDER
+    </select>
+</mapper>

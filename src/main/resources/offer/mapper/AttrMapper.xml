@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.iwhalecloud.retail.offer.mapper.AttrMapper">
+
+    <select id="queryAttrList" resultType="com.iwhalecloud.retail.offer.entity.Attr">
+        select *
+      	  from attr
+      order by priority
+    </select>
+
+    <select id="queryOutAttrListByGoodsId" resultType="com.iwhalecloud.retail.offer.entity.Attr">
+        select a.*
+      	  from attr a
+      	  where a.attr_id not in (
+      	  select p.attr_id from prod_goods_attr_value p
+      	  where p.goods_id = #{goodsId}
+      	  )
+      order by a.priority
+    </select>
+
+</mapper>

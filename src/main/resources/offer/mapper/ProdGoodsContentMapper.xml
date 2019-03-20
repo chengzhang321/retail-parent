@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.iwhalecloud.retail.offer.mapper.ProdGoodsContentMapper">
+
+    <sql id="prod_goods_content_column">
+        A.GOODS_CONTENT_ID,A.GOODS_ID,A.GOODS_CONTENT_TYPE,A.CONTENT_ID,
+        A.STATE,A.STATE_DATE,A.CREATED_DATE,A.USER_ID
+    </sql>
+
+    <select id="selectGoodsContentById" resultType="com.iwhalecloud.retail.offer.entity.ProdGoodsContent">
+        SELECT
+        <include refid="prod_goods_content_column"/>
+        FROM PROD_GOODS_CONTENT A
+        WHERE A.GOODS_CONTENT_ID = #{goodsContentId}
+    </select>
+
+</mapper>
